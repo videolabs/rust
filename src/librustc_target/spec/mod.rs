@@ -60,6 +60,7 @@ mod solaris_base;
 mod uefi_base;
 mod windows_base;
 mod windows_msvc_base;
+mod uwp_base;
 mod thumb_base;
 mod l4re_base;
 mod fuchsia_base;
@@ -431,6 +432,8 @@ supported_targets! {
 
     ("x86_64-pc-windows-gnu", x86_64_pc_windows_gnu),
     ("i686-pc-windows-gnu", i686_pc_windows_gnu),
+    ("i686-pc-uwp-gnu", i686_pc_uwp_gnu),
+    ("x86_64-pc-uwp-gnu", x86_64_pc_uwp_gnu),
 
     ("aarch64-pc-windows-msvc", aarch64_pc_windows_msvc),
     ("x86_64-pc-windows-msvc", x86_64_pc_windows_msvc),
