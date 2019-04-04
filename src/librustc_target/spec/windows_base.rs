@@ -46,7 +46,6 @@ pub fn opts() -> TargetOptions {
     late_link_args.insert(LinkerFlavor::Gcc, vec![
         "-lmingwex".to_string(),
         "-lmingw32".to_string(),
-        "-lgcc".to_string(), // alas, mingw* libraries above depend on libgcc
         "-lmsvcrt".to_string(),
         // mingw's msvcrt is a weird hybrid import library and static library.
         // And it seems that the linker fails to use import symbols from msvcrt
@@ -87,7 +86,8 @@ pub fn opts() -> TargetOptions {
         ],
         late_link_args,
         post_link_objects: vec![
-            "rsend.o".to_string()
+            "rsend.o".to_string(),
+            "libgcc.a".to_string(), // libgcc or compiler-rt
         ],
         custom_unwind_resume: true,
         abi_return_struct_as_int: true,
