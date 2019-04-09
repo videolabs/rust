@@ -310,14 +310,15 @@ impl Step for TheBook {
         });
 
         // build the redirect pages
-        builder.info(&format!("Documenting book redirect pages ({})", target));
-        for file in t!(fs::read_dir(builder.src.join("src/doc/book/redirects"))) {
-            let file = t!(file);
-            let path = file.path();
-            let path = path.to_str().unwrap();
+        // builder.info(&format!("Documenting book redirect pages ({})", target));
+        // for file in t!(fs::read_dir(builder.src.join("src/doc/book/redirects"))) {
+        //     let file = t!(file);
+        //     let path = file.path();
+        //     let path = path.to_str().unwrap();
 
-            invoke_rustdoc(builder, compiler, target, path);
-        }
+        //     invoke_rustdoc(builder, compiler, target, path);
+        // }
+        let _ = invoke_rustdoc;
     }
 }
 

@@ -438,8 +438,8 @@ impl<'a> Builder<'a> {
                 doc::EditionGuide,
             ),
             Kind::Dist => describe!(
-                dist::Docs,
-                dist::RustcDocs,
+                // dist::Docs,
+                // dist::RustcDocs,
                 dist::Mingw,
                 dist::Rustc,
                 dist::DebuggerScripts,
