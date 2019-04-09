@@ -96,12 +96,16 @@ impl Socket {
             SocketAddr::V6(..) => c::AF_INET6,
         };
         let socket = unsafe {
-            match c::WSASocketW(fam, ty, 0, ptr::null_mut(), 0,
-                                c::WSA_FLAG_OVERLAPPED) {
+            #[cfg(not(target_os = "uwp"))]
+            let socket_flags = c::WSA_FLAG_OVERLAPPED;
+            #[cfg(target_os = "uwp")]
+            let socket_flags = c::WSA_FLAG_OVERLAPPED | c::WSA_FLAG_NO_HANDLE_INHERIT;
+            match c::WSASocketW(fam, ty, 0, ptr::null_mut(), 0, socket_flags) {
                 c::INVALID_SOCKET => Err(last_error()),
                 n => Ok(Socket(n)),
             }
         }?;
+        #[cfg(not(target_os = "uwp"))]
         socket.set_no_inherit()?;
         Ok(socket)
     }
@@ -168,6 +172,7 @@ impl Socket {
                 n => Ok(Socket(n)),
             }
         }?;
+        #[cfg(not(target_os = "uwp"))]
         socket.set_no_inherit()?;
         Ok(socket)
     }
@@ -178,15 +183,21 @@ impl Socket {
             cvt(c::WSADuplicateSocketW(self.0,
                                             c::GetCurrentProcessId(),
                                             &mut info))?;
+            #[cfg(not(target_os = "uwp"))]
+            let socket_flags = c::WSA_FLAG_OVERLAPPED;
+            #[cfg(target_os = "uwp")]
+            let socket_flags = c::WSA_FLAG_OVERLAPPED | c::WSA_FLAG_NO_HANDLE_INHERIT;
+
             match c::WSASocketW(info.iAddressFamily,
                                 info.iSocketType,
                                 info.iProtocol,
                                 &mut info, 0,
-                                c::WSA_FLAG_OVERLAPPED) {
+                                socket_flags) {
                 c::INVALID_SOCKET => Err(last_error()),
                 n => Ok(Socket(n)),
             }
         }?;
+        #[cfg(not(target_os = "uwp"))]
         socket.set_no_inherit()?;
         Ok(socket)
     }
@@ -312,6 +323,7 @@ impl Socket {
         }
     }
 
+    #[cfg(not(target_os = "uwp"))]
     fn set_no_inherit(&self) -> io::Result<()> {
         sys::cvt(unsafe {
             c::SetHandleInformation(self.0 as c::HANDLE,

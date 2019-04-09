@@ -132,6 +132,8 @@ impl Clone for WIN32_FIND_DATAW {
 }
 
 pub const WSA_FLAG_OVERLAPPED: DWORD = 0x01;
+#[cfg(target_os = "uwp")]
+pub const WSA_FLAG_NO_HANDLE_INHERIT: DWORD = 0x80;
 
 pub const WSADESCRIPTION_LEN: usize = 256;
 pub const WSASYS_STATUS_LEN: usize = 128;
@@ -168,6 +170,7 @@ pub const STD_INPUT_HANDLE: DWORD = -10i32 as DWORD;
 pub const STD_OUTPUT_HANDLE: DWORD = -11i32 as DWORD;
 pub const STD_ERROR_HANDLE: DWORD = -12i32 as DWORD;
 
+#[cfg(not(target_os = "uwp"))]
 pub const HANDLE_FLAG_INHERIT: DWORD = 0x00000001;
 
 pub const PROGRESS_CONTINUE: DWORD = 0;
@@ -1083,6 +1086,7 @@ extern "system" {
     pub fn GetUserProfileDirectoryW(hToken: HANDLE,
                                     lpProfileDir: LPWSTR,
                                     lpcchSize: *mut DWORD) -> BOOL;
+    #[cfg(not(target_os = "uwp"))]
     pub fn SetHandleInformation(hObject: HANDLE,
                                 dwMask: DWORD,
                                 dwFlags: DWORD) -> BOOL;
