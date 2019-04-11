@@ -108,6 +108,15 @@ pub const SECURITY_SQOS_PRESENT: DWORD = 0x00100000;
 
 pub const FIONBIO: c_ulong = 0x8004667e;
 
+pub const CSIDL_PROFILE: c_int = 0x0028;
+
+#[repr(C)]
+#[allow(dead_code)] // we only use some variants
+pub enum SHGFP_TYPE {
+    SHGFP_TYPE_CURRENT = 0,
+    SHGFP_TYPE_DEFAULT = 1
+}
+
 #[cfg(target_arch = "arm")]
 const ARM_MAX_BREAKPOINTS: usize = 8;
 #[cfg(target_arch = "arm")]
@@ -153,7 +162,6 @@ pub const WSAECONNREFUSED: c_int = 10061;
 
 pub const MAX_PROTOCOL_CHAIN: DWORD = 7;
 
-pub const TOKEN_READ: DWORD = 0x20008;
 pub const MAXIMUM_REPARSE_DATA_BUFFER_SIZE: usize = 16 * 1024;
 pub const FSCTL_GET_REPARSE_POINT: DWORD = 0x900a8;
 pub const IO_REPARSE_TAG_SYMLINK: DWORD = 0xa000000c;
@@ -1052,9 +1060,6 @@ extern "system" {
     pub fn GetCommandLineW() -> *mut LPCWSTR;
     pub fn GetTempPathW(nBufferLength: DWORD,
                         lpBuffer: LPCWSTR) -> DWORD;
-    pub fn OpenProcessToken(ProcessHandle: HANDLE,
-                            DesiredAccess: DWORD,
-                            TokenHandle: *mut HANDLE) -> BOOL;
     pub fn GetCurrentProcess() -> HANDLE;
     pub fn GetCurrentThread() -> HANDLE;
     pub fn GetStdHandle(which: DWORD) -> HANDLE;
@@ -1079,9 +1084,9 @@ extern "system" {
     pub fn SwitchToThread() -> BOOL;
     pub fn Sleep(dwMilliseconds: DWORD);
     pub fn GetProcessId(handle: HANDLE) -> DWORD;
-    pub fn GetUserProfileDirectoryW(hToken: HANDLE,
-                                    lpProfileDir: LPWSTR,
-                                    lpcchSize: *mut DWORD) -> BOOL;
+    pub fn SHGetFolderPathW(handle: HANDLE, csidl: c_int,
+                            hToken: HANDLE, dwFlags: DWORD,
+                            pszPath: LPWSTR) -> DWORD;
     pub fn CopyFileExW(lpExistingFileName: LPCWSTR,
                        lpNewFileName: LPCWSTR,
                        lpProgressRoutine: LPPROGRESS_ROUTINE,
