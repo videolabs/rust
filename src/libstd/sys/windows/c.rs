@@ -42,6 +42,7 @@ pub type LPBOOL = *mut BOOL;
 pub type LPBYTE = *mut BYTE;
 pub type LPBY_HANDLE_FILE_INFORMATION = *mut BY_HANDLE_FILE_INFORMATION;
 pub type LPCSTR = *const CHAR;
+#[cfg(not(target_os = "uwp"))]
 pub type LPCVOID = *const c_void;
 pub type LPCWSTR = *const WCHAR;
 pub type LPDWORD = *mut DWORD;
@@ -970,6 +971,7 @@ pub enum EXCEPTION_DISPOSITION {
     ExceptionCollidedUnwind
 }
 
+#[cfg(not(target_os = "uwp"))]
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct CONSOLE_READCONSOLE_CONTROL {
@@ -978,6 +980,7 @@ pub struct CONSOLE_READCONSOLE_CONTROL {
     pub dwCtrlWakeupMask: ULONG,
     pub dwControlKeyState: ULONG,
 }
+#[cfg(not(target_os = "uwp"))]
 pub type PCONSOLE_READCONSOLE_CONTROL = *mut CONSOLE_READCONSOLE_CONTROL;
 
 #[repr(C)]
@@ -1039,18 +1042,21 @@ extern "system" {
     pub fn LeaveCriticalSection(CriticalSection: *mut CRITICAL_SECTION);
     pub fn DeleteCriticalSection(CriticalSection: *mut CRITICAL_SECTION);
 
+    #[cfg(not(target_os = "uwp"))]
     pub fn ReadConsoleW(hConsoleInput: HANDLE,
                         lpBuffer: LPVOID,
                         nNumberOfCharsToRead: DWORD,
                         lpNumberOfCharsRead: LPDWORD,
                         pInputControl: PCONSOLE_READCONSOLE_CONTROL) -> BOOL;
 
+    #[cfg(not(target_os = "uwp"))]
     pub fn WriteConsoleW(hConsoleOutput: HANDLE,
                          lpBuffer: LPCVOID,
                          nNumberOfCharsToWrite: DWORD,
                          lpNumberOfCharsWritten: LPDWORD,
                          lpReserved: LPVOID) -> BOOL;
 
+    #[cfg(not(target_os = "uwp"))]
     pub fn GetConsoleMode(hConsoleHandle: HANDLE,
                           lpMode: LPDWORD) -> BOOL;
     pub fn RemoveDirectoryW(lpPathName: LPCWSTR) -> BOOL;
