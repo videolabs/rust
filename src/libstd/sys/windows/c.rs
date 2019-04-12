@@ -40,7 +40,6 @@ pub type DWORDLONG = ULONGLONG;
 
 pub type LPBOOL = *mut BOOL;
 pub type LPBYTE = *mut BYTE;
-pub type LPBY_HANDLE_FILE_INFORMATION = *mut BY_HANDLE_FILE_INFORMATION;
 pub type LPCSTR = *const CHAR;
 #[cfg(not(target_os = "uwp"))]
 pub type LPCVOID = *const c_void;
@@ -375,20 +374,6 @@ pub struct WIN32_FILE_ATTRIBUTE_DATA {
     pub ftLastWriteTime: FILETIME,
     pub nFileSizeHigh: DWORD,
     pub nFileSizeLow: DWORD,
-}
-
-#[repr(C)]
-pub struct BY_HANDLE_FILE_INFORMATION {
-    pub dwFileAttributes: DWORD,
-    pub ftCreationTime: FILETIME,
-    pub ftLastAccessTime: FILETIME,
-    pub ftLastWriteTime: FILETIME,
-    pub dwVolumeSerialNumber: DWORD,
-    pub nFileSizeHigh: DWORD,
-    pub nFileSizeLow: DWORD,
-    pub nNumberOfLinks: DWORD,
-    pub nFileIndexHigh: DWORD,
-    pub nFileIndexLow: DWORD,
 }
 
 #[repr(C)]
@@ -1058,10 +1043,11 @@ extern "system" {
     pub fn RemoveDirectoryW(lpPathName: LPCWSTR) -> BOOL;
     pub fn SetFileAttributesW(lpFileName: LPCWSTR,
                               dwFileAttributes: DWORD) -> BOOL;
-    pub fn GetFileInformationByHandle(hFile: HANDLE,
-                            lpFileInformation: LPBY_HANDLE_FILE_INFORMATION)
-                            -> BOOL;
-
+    pub fn GetFileInformationByHandleEx(hFile: HANDLE,
+                                        fileInfoClass: FILE_INFO_BY_HANDLE_CLASS,
+                                        lpFileInformation: LPVOID,
+                                        dwBufferSize: DWORD) -> BOOL;
+    pub fn GetFileSizeEx(hFile: HANDLE, lpFileSize: PLARGE_INTEGER) -> BOOL;
     pub fn SetLastError(dwErrCode: DWORD);
     pub fn GetCommandLineW() -> *mut LPCWSTR;
     pub fn GetTempPathW(nBufferLength: DWORD,

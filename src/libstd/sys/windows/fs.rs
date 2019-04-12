@@ -12,6 +12,7 @@ use crate::sys::handle::Handle;
 use crate::sys::time::SystemTime;
 use crate::sys::{c, cvt};
 use crate::sys_common::FromInner;
+use libc::c_void;
 
 use super::to_u16s;
 
@@ -289,17 +290,30 @@ impl File {
 
     pub fn file_attr(&self) -> io::Result<FileAttr> {
         unsafe {
-            let mut info: c::BY_HANDLE_FILE_INFORMATION = mem::zeroed();
-            cvt(c::GetFileInformationByHandle(self.handle.raw(),
-                                              &mut info))?;
+            let mut info: c::FILE_BASIC_INFO = mem::zeroed();
+            let size = mem::size_of_val(&info);
+            cvt(c::GetFileInformationByHandleEx(self.handle.raw(),
+                                              c::FileBasicInfo,
+                                              &mut info as *mut _ as *mut c_void,
+                                              size as c::DWORD))?;
             let mut attr = FileAttr {
-                attributes: info.dwFileAttributes,
-                creation_time: info.ftCreationTime,
-                last_access_time: info.ftLastAccessTime,
-                last_write_time: info.ftLastWriteTime,
-                file_size: ((info.nFileSizeHigh as u64) << 32) | (info.nFileSizeLow as u64),
+                attributes: info.FileAttributes,
+                creation_time: c::FILETIME {
+                    dwLowDateTime: info.CreationTime as c::DWORD,
+                    dwHighDateTime: (info.CreationTime >> 32) as c::DWORD,
+                },
+                last_access_time: c::FILETIME {
+                    dwLowDateTime: info.LastAccessTime as c::DWORD,
+                    dwHighDateTime: (info.LastAccessTime >> 32) as c::DWORD,
+                },
+                last_write_time: c::FILETIME {
+                    dwLowDateTime: info.LastWriteTime as c::DWORD,
+                    dwHighDateTime: (info.LastWriteTime >> 32) as c::DWORD,
+                },
+                file_size: 0,
                 reparse_tag: 0,
             };
+            cvt(c::GetFileSizeEx(self.handle.raw(), &mut attr.file_size as *mut _ as *mut i64))?;
             if attr.is_reparse_point() {
                 let mut b = [0; c::MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
                 if let Ok((_, buf)) = self.reparse_point(&mut b) {
