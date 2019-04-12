@@ -40,6 +40,7 @@ pub type DWORDLONG = ULONGLONG;
 
 pub type LPBOOL = *mut BOOL;
 pub type LPBYTE = *mut BYTE;
+#[cfg(not(target_os = "uwp"))]
 pub type LPBY_HANDLE_FILE_INFORMATION = *mut BY_HANDLE_FILE_INFORMATION;
 pub type LPCSTR = *const CHAR;
 #[cfg(not(target_os = "uwp"))]
@@ -381,6 +382,7 @@ pub struct WIN32_FILE_ATTRIBUTE_DATA {
     pub nFileSizeLow: DWORD,
 }
 
+#[cfg(not(target_os = "uwp"))]
 #[repr(C)]
 pub struct BY_HANDLE_FILE_INFORMATION {
     pub dwFileAttributes: DWORD,
@@ -1062,10 +1064,17 @@ extern "system" {
     pub fn RemoveDirectoryW(lpPathName: LPCWSTR) -> BOOL;
     pub fn SetFileAttributesW(lpFileName: LPCWSTR,
                               dwFileAttributes: DWORD) -> BOOL;
+    #[cfg(not(target_os = "uwp"))]
     pub fn GetFileInformationByHandle(hFile: HANDLE,
-                            lpFileInformation: LPBY_HANDLE_FILE_INFORMATION)
-                            -> BOOL;
-
+                        lpFileInformation: LPBY_HANDLE_FILE_INFORMATION)
+                        -> BOOL;
+    #[cfg(target_os = "uwp")]
+    pub fn GetFileInformationByHandleEx(hFile: HANDLE,
+                                        fileInfoClass: FILE_INFO_BY_HANDLE_CLASS,
+                                        lpFileInformation: LPVOID,
+                                        dwBufferSize: DWORD) -> BOOL;
+    #[cfg(target_os = "uwp")]
+    pub fn GetFileSizeEx(hFile: HANDLE, lpFileSize: PLARGE_INTEGER) -> BOOL;
     pub fn SetLastError(dwErrCode: DWORD);
     pub fn GetCommandLineW() -> *mut LPCWSTR;
     pub fn GetTempPathW(nBufferLength: DWORD,
