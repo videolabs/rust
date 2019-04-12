@@ -1184,6 +1184,7 @@ extern "system" {
                      lpOverlapped: LPOVERLAPPED)
                      -> BOOL;
     pub fn CloseHandle(hObject: HANDLE) -> BOOL;
+    #[cfg(not(target_os = "uwp"))]
     pub fn CreateHardLinkW(lpSymlinkFileName: LPCWSTR,
                            lpTargetFileName: LPCWSTR,
                            lpSecurityAttributes: LPSECURITY_ATTRIBUTES)
