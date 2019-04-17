@@ -717,7 +717,7 @@ impl<'a> Builder<'a> {
                 additional_paths.push(lld_bin_path);
             }
 
-            if host.contains("windows") {
+            if host.contains("windows") || host.contains("uwp") {
                 // On Windows, PATH and the dynamic library path are the same,
                 // so we just add the LLVM bin path to lib_path
                 lib_paths.extend(additional_paths);

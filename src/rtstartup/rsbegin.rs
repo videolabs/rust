@@ -33,7 +33,7 @@ pub unsafe fn drop_in_place<T: ?Sized>(to_drop: *mut T) {
     drop_in_place(to_drop);
 }
 
-#[cfg(all(target_os = "windows", target_arch = "x86", target_env = "gnu"))]
+#[cfg(all(any(target_os = "windows", target_os = "uwp"), target_arch = "x86", target_env = "gnu"))]
 pub mod eh_frames {
     #[no_mangle]
     #[link_section = ".eh_frame"]
