@@ -183,7 +183,7 @@ impl Step for Llvm {
 
         // For distribution we want the LLVM tools to be *statically* linked to libstdc++
         if builder.config.llvm_tools_enabled || want_lldb {
-            if !target.contains("windows") {
+            if !target.contains("windows") && !target.contains("uwp") {
                 if target.contains("apple") {
                     cfg.define("CMAKE_EXE_LINKER_FLAGS", "-static-libstdc++");
                 } else {
@@ -405,6 +405,7 @@ fn configure_cmake(builder: &Builder<'_>,
     let mut cxxflags = builder.cflags(target, GitRepo::Llvm).join(" ");
     if builder.config.llvm_static_stdcpp &&
         !target.contains("windows") &&
+        !target.contains("uwp") &&
         !target.contains("netbsd")
     {
         cxxflags.push_str(" -static-libstdc++");

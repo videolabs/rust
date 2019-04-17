@@ -237,6 +237,7 @@ fn main() {
                 cmd.arg("-Z").arg("osx-rpath-install-name");
                 Some("-Wl,-rpath,@loader_path/../lib")
             } else if !target.contains("windows") &&
+                      !target.contains("uwp") &&
                       !target.contains("wasm32") &&
                       !target.contains("fuchsia") {
                 Some("-Wl,-rpath,$ORIGIN/../lib")
