@@ -31,6 +31,8 @@ fn main() {
     } else if target.contains("windows-gnu") {
         println!("cargo:rustc-link-lib=static-nobundle=gcc_eh");
         println!("cargo:rustc-link-lib=static-nobundle=pthread");
+    } else if target.contains("uwp") {
+        println!("cargo:rustc-link-lib=unwind");
     } else if target.contains("fuchsia") {
         println!("cargo:rustc-link-lib=unwind");
     } else if target.contains("haiku") {
