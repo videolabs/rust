@@ -321,6 +321,9 @@ pub const STACK_SIZE_PARAM_IS_A_RESERVATION: DWORD = 0x00010000;
 
 pub const HEAP_ZERO_MEMORY: DWORD = 0x00000008;
 
+#[cfg(target_os = "uwp")]
+pub const BCRYPT_USE_SYSTEM_PREFERRED_RNG: DWORD = 0x00000002;
+
 #[repr(C)]
 #[cfg(not(target_pointer_width = "64"))]
 pub struct WSADATA {
@@ -1323,7 +1326,12 @@ extern "system" {
                   timeout: *const timeval) -> c_int;
 
     #[link_name = "SystemFunction036"]
+    #[cfg(not(target_os = "uwp"))]
     pub fn RtlGenRandom(RandomBuffer: *mut u8, RandomBufferLength: ULONG) -> BOOLEAN;
+
+    #[cfg(target_os = "uwp")]
+    pub fn BCryptGenRandom(hAlgorithm: LPVOID, pBuffer: *mut u8,
+                           cbBuffer: ULONG, dwFlags: ULONG) -> LONG;
 
     pub fn GetProcessHeap() -> HANDLE;
     pub fn HeapAlloc(hHeap: HANDLE, dwFlags: DWORD, dwBytes: SIZE_T) -> LPVOID;
