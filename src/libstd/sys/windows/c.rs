@@ -299,8 +299,11 @@ pub const IMAGE_FILE_MACHINE_ARM64: DWORD = 0xAA64;
 #[cfg(feature = "backtrace")]
 pub const IMAGE_FILE_MACHINE_ARMNT: DWORD = 0x01c4;
 
+#[cfg(not(target_os = "uwp"))]
 pub const EXCEPTION_CONTINUE_SEARCH: LONG = 0;
+#[cfg(not(target_os = "uwp"))]
 pub const EXCEPTION_STACK_OVERFLOW: DWORD = 0xc00000fd;
+#[cfg(not(target_os = "uwp"))]
 pub const EXCEPTION_MAXIMUM_PARAMETERS: usize = 15;
 
 pub const PIPE_ACCESS_INBOUND: DWORD = 0x00000001;
@@ -502,6 +505,7 @@ pub struct REPARSE_MOUNTPOINT_DATA_BUFFER {
     pub ReparseTarget: WCHAR,
 }
 
+#[cfg(not(target_os = "uwp"))]
 #[repr(C)]
 pub struct EXCEPTION_RECORD {
     pub ExceptionCode: DWORD,
@@ -512,12 +516,14 @@ pub struct EXCEPTION_RECORD {
     pub ExceptionInformation: [LPVOID; EXCEPTION_MAXIMUM_PARAMETERS]
 }
 
+#[cfg(not(target_os = "uwp"))]
 #[repr(C)]
 pub struct EXCEPTION_POINTERS {
     pub ExceptionRecord: *mut EXCEPTION_RECORD,
     pub ContextRecord: *mut CONTEXT,
 }
 
+#[cfg(not(target_os = "uwp"))]
 pub type PVECTORED_EXCEPTION_HANDLER = extern "system"
         fn(ExceptionInfo: *mut EXCEPTION_POINTERS) -> LONG;
 
@@ -1116,6 +1122,7 @@ extern "system" {
                        lpData: LPVOID,
                        pbCancel: LPBOOL,
                        dwCopyFlags: DWORD) -> BOOL;
+    #[cfg(not(target_os = "uwp"))]
     pub fn AddVectoredExceptionHandler(FirstHandler: ULONG,
                                        VectoredHandler: PVECTORED_EXCEPTION_HANDLER)
                                        -> LPVOID;
@@ -1340,6 +1347,7 @@ compat_fn! {
                                      _dwFlags: DWORD) -> DWORD {
         SetLastError(ERROR_CALL_NOT_IMPLEMENTED as DWORD); 0
     }
+    #[cfg(not(target_os = "uwp"))]
     pub fn SetThreadStackGuarantee(_size: *mut c_ulong) -> BOOL {
         SetLastError(ERROR_CALL_NOT_IMPLEMENTED as DWORD); 0
     }
