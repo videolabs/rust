@@ -368,6 +368,23 @@ impl<'a> Linker for GccLinker<'a> {
             }
         } else {
             self.cmd.arg("-shared");
+            if self.sess.target.target.options.is_like_windows {
+                let implib_name = out_filename
+                    .file_name()
+                    .and_then(|file| file.to_str())
+                    .map(|file| format!("{}{}{}",
+                         self.sess.target.target.options.staticlib_prefix,
+                         file,
+                         self.sess.target.target.options.staticlib_suffix));
+                if let Some(implib_name) = implib_name {
+                    let implib = out_filename
+                        .parent()
+                        .map(|dir| dir.join(&implib_name));
+                    if let Some(implib) = implib {
+                        self.linker_arg(&format!("--out-implib,{}", (*implib).to_str().unwrap()));
+                    }
+                }
+            }
         }
     }
 
