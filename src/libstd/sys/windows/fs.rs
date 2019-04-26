@@ -339,7 +339,13 @@ impl File {
                 file_size: 0,
                 reparse_tag: 0,
             };
-            cvt(c::GetFileSizeEx(self.handle.raw(), &mut attr.file_size as *mut _ as *mut i64))?;
+            let mut info: c::FILE_STANDARD_INFO = mem::zeroed();
+            let size = mem::size_of_val(&info);
+            cvt(c::GetFileInformationByHandleEx(self.handle.raw(),
+                                                c::FileStandardInfo,
+                                                &mut info as *mut _ as *mut c_void,
+                                                size as c::DWORD))?;
+            attr.file_size = info.AllocationSize as u64;
             if attr.is_reparse_point() {
                 let mut b = [0; c::MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
                 if let Ok((_, buf)) = self.reparse_point(&mut b) {

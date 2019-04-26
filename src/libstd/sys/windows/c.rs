@@ -440,6 +440,15 @@ pub struct FILE_BASIC_INFO {
 }
 
 #[repr(C)]
+pub struct FILE_STANDARD_INFO {
+    pub AllocationSize: LARGE_INTEGER,
+    pub EndOfFile: LARGE_INTEGER,
+    pub NumberOfLink: DWORD,
+    pub DeletePending: BOOLEAN,
+    pub Directory: BOOLEAN,
+}
+
+#[repr(C)]
 pub struct FILE_END_OF_FILE_INFO {
     pub EndOfFile: LARGE_INTEGER,
 }
@@ -1082,8 +1091,6 @@ extern "system" {
                                         fileInfoClass: FILE_INFO_BY_HANDLE_CLASS,
                                         lpFileInformation: LPVOID,
                                         dwBufferSize: DWORD) -> BOOL;
-    #[cfg(target_os = "uwp")]
-    pub fn GetFileSizeEx(hFile: HANDLE, lpFileSize: PLARGE_INTEGER) -> BOOL;
     pub fn SetLastError(dwErrCode: DWORD);
     pub fn GetCommandLineW() -> *mut LPCWSTR;
     pub fn GetTempPathW(nBufferLength: DWORD,
