@@ -105,7 +105,6 @@ impl Socket {
                 n => Ok(Socket(n)),
             }
         }?;
-        #[cfg(not(target_os = "uwp"))]
         socket.set_no_inherit()?;
         Ok(socket)
     }
@@ -172,7 +171,6 @@ impl Socket {
                 n => Ok(Socket(n)),
             }
         }?;
-        #[cfg(not(target_os = "uwp"))]
         socket.set_no_inherit()?;
         Ok(socket)
     }
@@ -197,7 +195,6 @@ impl Socket {
                 n => Ok(Socket(n)),
             }
         }?;
-        #[cfg(not(target_os = "uwp"))]
         socket.set_no_inherit()?;
         Ok(socket)
     }
@@ -330,6 +327,12 @@ impl Socket {
                                     c::HANDLE_FLAG_INHERIT, 0)
         }).map(|_| ())
     }
+
+    #[cfg(target_os = "uwp")]
+    fn set_no_inherit(&self) -> io::Result<()> {
+        Ok(())
+    }
+
 
     pub fn shutdown(&self, how: Shutdown) -> io::Result<()> {
         let how = match how {
