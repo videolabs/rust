@@ -1,7 +1,5 @@
 use crate::io;
 use crate::mem;
-#[cfg(target_os = "uwp")]
-use crate::ptr;
 use crate::sys::c;
 
 #[cfg(not(target_os = "uwp"))]
@@ -20,6 +18,8 @@ pub fn hashmap_random_keys() -> (u64, u64) {
 
 #[cfg(target_os = "uwp")]
 pub fn hashmap_random_keys() -> (u64, u64) {
+    use crate::ptr;
+
     let mut v = (0, 0);
     let ret = unsafe {
         c::BCryptGenRandom(ptr::null_mut(), &mut v as *mut _ as *mut u8,
