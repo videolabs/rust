@@ -12,8 +12,6 @@ use crate::sys::handle::Handle;
 use crate::sys::time::SystemTime;
 use crate::sys::{c, cvt};
 use crate::sys_common::FromInner;
-#[cfg(target_os = "uwp")]
-use libc::c_void;
 
 use super::to_u16s;
 
@@ -320,7 +318,7 @@ impl File {
             let size = mem::size_of_val(&info);
             cvt(c::GetFileInformationByHandleEx(self.handle.raw(),
                                               c::FileBasicInfo,
-                                              &mut info as *mut _ as *mut c_void,
+                                              &mut info as *mut _ as *mut libc::c_void,
                                               size as c::DWORD))?;
             let mut attr = FileAttr {
                 attributes: info.FileAttributes,
@@ -343,7 +341,7 @@ impl File {
             let size = mem::size_of_val(&info);
             cvt(c::GetFileInformationByHandleEx(self.handle.raw(),
                                                 c::FileStandardInfo,
-                                                &mut info as *mut _ as *mut c_void,
+                                                &mut info as *mut _ as *mut libc::c_void,
                                                 size as c::DWORD))?;
             attr.file_size = info.AllocationSize as u64;
             if attr.is_reparse_point() {
