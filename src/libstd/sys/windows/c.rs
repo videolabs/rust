@@ -72,12 +72,6 @@ pub type SOCKET = crate::os::windows::raw::SOCKET;
 pub type socklen_t = c_int;
 pub type ADDRESS_FAMILY = USHORT;
 
-#[cfg(not(target_os = "uwp"))]
-ifdef! {
-    pub type LPBY_HANDLE_FILE_INFORMATION = *mut BY_HANDLE_FILE_INFORMATION;
-    pub type LPCVOID = *const c_void;
-}
-
 pub const TRUE: BOOL = 1;
 pub const FALSE: BOOL = 0;
 
@@ -149,8 +143,6 @@ impl Clone for WIN32_FIND_DATAW {
 }
 
 pub const WSA_FLAG_OVERLAPPED: DWORD = 0x01;
-#[cfg(target_os = "uwp")]
-pub const WSA_FLAG_NO_HANDLE_INHERIT: DWORD = 0x80;
 
 pub const WSADESCRIPTION_LEN: usize = 256;
 pub const WSASYS_STATUS_LEN: usize = 128;
@@ -302,14 +294,6 @@ pub const IMAGE_FILE_MACHINE_ARM64: DWORD = 0xAA64;
 #[cfg(feature = "backtrace")]
 pub const IMAGE_FILE_MACHINE_ARMNT: DWORD = 0x01c4;
 
-#[cfg(not(target_os = "uwp"))]
-ifdef! {
-    pub const EXCEPTION_CONTINUE_SEARCH: LONG = 0;
-    pub const EXCEPTION_STACK_OVERFLOW: DWORD = 0xc00000fd;
-    pub const EXCEPTION_MAXIMUM_PARAMETERS: usize = 15;
-    pub const HANDLE_FLAG_INHERIT: DWORD = 0x00000001;
-}
-
 pub const PIPE_ACCESS_INBOUND: DWORD = 0x00000001;
 pub const PIPE_ACCESS_OUTBOUND: DWORD = 0x00000002;
 pub const FILE_FLAG_FIRST_PIPE_INSTANCE: DWORD = 0x00080000;
@@ -324,9 +308,6 @@ pub const FD_SETSIZE: usize = 64;
 pub const STACK_SIZE_PARAM_IS_A_RESERVATION: DWORD = 0x00010000;
 
 pub const HEAP_ZERO_MEMORY: DWORD = 0x00000008;
-
-#[cfg(target_os = "uwp")]
-pub const BCRYPT_USE_SYSTEM_PREFERRED_RNG: DWORD = 0x00000002;
 
 #[repr(C)]
 #[cfg(not(target_pointer_width = "64"))]
@@ -390,21 +371,6 @@ pub struct WIN32_FILE_ATTRIBUTE_DATA {
     pub ftLastWriteTime: FILETIME,
     pub nFileSizeHigh: DWORD,
     pub nFileSizeLow: DWORD,
-}
-
-#[cfg(not(target_os = "uwp"))]
-#[repr(C)]
-pub struct BY_HANDLE_FILE_INFORMATION {
-    pub dwFileAttributes: DWORD,
-    pub ftCreationTime: FILETIME,
-    pub ftLastAccessTime: FILETIME,
-    pub ftLastWriteTime: FILETIME,
-    pub dwVolumeSerialNumber: DWORD,
-    pub nFileSizeHigh: DWORD,
-    pub nFileSizeLow: DWORD,
-    pub nNumberOfLinks: DWORD,
-    pub nFileIndexHigh: DWORD,
-    pub nFileIndexLow: DWORD,
 }
 
 #[repr(C)]
@@ -519,28 +485,6 @@ pub struct REPARSE_MOUNTPOINT_DATA_BUFFER {
     pub ReparseTargetMaximumLength: WORD,
     pub Reserved1: WORD,
     pub ReparseTarget: WCHAR,
-}
-
-#[cfg(not(target_os = "uwp"))]
-ifdef! {
-    #[repr(C)]
-    pub struct EXCEPTION_RECORD {
-        pub ExceptionCode: DWORD,
-        pub ExceptionFlags: DWORD,
-        pub ExceptionRecord: *mut EXCEPTION_RECORD,
-        pub ExceptionAddress: LPVOID,
-        pub NumberParameters: DWORD,
-        pub ExceptionInformation: [LPVOID; EXCEPTION_MAXIMUM_PARAMETERS]
-    }
-
-    #[repr(C)]
-    pub struct EXCEPTION_POINTERS {
-        pub ExceptionRecord: *mut EXCEPTION_RECORD,
-        pub ContextRecord: *mut CONTEXT,
-    }
-
-    pub type PVECTORED_EXCEPTION_HANDLER = extern "system"
-            fn(ExceptionInfo: *mut EXCEPTION_POINTERS) -> LONG;
 }
 
 #[repr(C)]
@@ -995,19 +939,6 @@ pub enum EXCEPTION_DISPOSITION {
     ExceptionCollidedUnwind
 }
 
-#[cfg(not(target_os = "uwp"))]
-ifdef! {
-    #[repr(C)]
-    #[derive(Copy, Clone)]
-    pub struct CONSOLE_READCONSOLE_CONTROL {
-        pub nLength: ULONG,
-        pub nInitialChars: ULONG,
-        pub dwCtrlWakeupMask: ULONG,
-        pub dwControlKeyState: ULONG,
-    }
-    pub type PCONSOLE_READCONSOLE_CONTROL = *mut CONSOLE_READCONSOLE_CONTROL;
-}
-
 #[repr(C)]
 #[derive(Copy)]
 pub struct fd_set {
@@ -1031,50 +962,106 @@ pub struct timeval {
 // Functions forbidden when targeting UWP
 #[cfg(not(target_os = "uwp"))]
 ifdef! {
-extern "system" {
-    pub fn ReadConsoleW(hConsoleInput: HANDLE,
-                        lpBuffer: LPVOID,
-                        nNumberOfCharsToRead: DWORD,
-                        lpNumberOfCharsRead: LPDWORD,
-                        pInputControl: PCONSOLE_READCONSOLE_CONTROL) -> BOOL;
+    #[repr(C)]
+    pub struct EXCEPTION_RECORD {
+        pub ExceptionCode: DWORD,
+        pub ExceptionFlags: DWORD,
+        pub ExceptionRecord: *mut EXCEPTION_RECORD,
+        pub ExceptionAddress: LPVOID,
+        pub NumberParameters: DWORD,
+        pub ExceptionInformation: [LPVOID; EXCEPTION_MAXIMUM_PARAMETERS]
+    }
 
-    pub fn WriteConsoleW(hConsoleOutput: HANDLE,
-                         lpBuffer: LPCVOID,
-                         nNumberOfCharsToWrite: DWORD,
-                         lpNumberOfCharsWritten: LPDWORD,
-                         lpReserved: LPVOID) -> BOOL;
+    #[repr(C)]
+    pub struct EXCEPTION_POINTERS {
+        pub ExceptionRecord: *mut EXCEPTION_RECORD,
+        pub ContextRecord: *mut CONTEXT,
+    }
 
-    pub fn GetConsoleMode(hConsoleHandle: HANDLE,
-                          lpMode: LPDWORD) -> BOOL;
-    pub fn GetFileInformationByHandle(hFile: HANDLE,
-                        lpFileInformation: LPBY_HANDLE_FILE_INFORMATION)
-                        -> BOOL;
-    pub fn SetHandleInformation(hObject: HANDLE,
-                                dwMask: DWORD,
-                                dwFlags: DWORD) -> BOOL;
-    pub fn AddVectoredExceptionHandler(FirstHandler: ULONG,
-                                       VectoredHandler: PVECTORED_EXCEPTION_HANDLER)
-                                       -> LPVOID;
-    pub fn CreateHardLinkW(lpSymlinkFileName: LPCWSTR,
-                           lpTargetFileName: LPCWSTR,
-                           lpSecurityAttributes: LPSECURITY_ATTRIBUTES)
-                           -> BOOL;
-    #[link_name = "SystemFunction036"]
-    pub fn RtlGenRandom(RandomBuffer: *mut u8, RandomBufferLength: ULONG) -> BOOLEAN;
+    pub type PVECTORED_EXCEPTION_HANDLER = extern "system"
+            fn(ExceptionInfo: *mut EXCEPTION_POINTERS) -> LONG;
+
+    #[repr(C)]
+    #[derive(Copy, Clone)]
+    pub struct CONSOLE_READCONSOLE_CONTROL {
+        pub nLength: ULONG,
+        pub nInitialChars: ULONG,
+        pub dwCtrlWakeupMask: ULONG,
+        pub dwControlKeyState: ULONG,
+    }
+
+    pub type PCONSOLE_READCONSOLE_CONTROL = *mut CONSOLE_READCONSOLE_CONTROL;
+
+    #[repr(C)]
+    pub struct BY_HANDLE_FILE_INFORMATION {
+        pub dwFileAttributes: DWORD,
+        pub ftCreationTime: FILETIME,
+        pub ftLastAccessTime: FILETIME,
+        pub ftLastWriteTime: FILETIME,
+        pub dwVolumeSerialNumber: DWORD,
+        pub nFileSizeHigh: DWORD,
+        pub nFileSizeLow: DWORD,
+        pub nNumberOfLinks: DWORD,
+        pub nFileIndexHigh: DWORD,
+        pub nFileIndexLow: DWORD,
+    }
+
+    pub type LPBY_HANDLE_FILE_INFORMATION = *mut BY_HANDLE_FILE_INFORMATION;
+    pub type LPCVOID = *const c_void;
+
+    pub const EXCEPTION_CONTINUE_SEARCH: LONG = 0;
+    pub const EXCEPTION_STACK_OVERFLOW: DWORD = 0xc00000fd;
+    pub const EXCEPTION_MAXIMUM_PARAMETERS: usize = 15;
+
+    pub const HANDLE_FLAG_INHERIT: DWORD = 0x00000001;
+
+    extern "system" {
+        pub fn ReadConsoleW(hConsoleInput: HANDLE,
+                            lpBuffer: LPVOID,
+                            nNumberOfCharsToRead: DWORD,
+                            lpNumberOfCharsRead: LPDWORD,
+                            pInputControl: PCONSOLE_READCONSOLE_CONTROL) -> BOOL;
+
+        pub fn WriteConsoleW(hConsoleOutput: HANDLE,
+                             lpBuffer: LPCVOID,
+                             nNumberOfCharsToWrite: DWORD,
+                             lpNumberOfCharsWritten: LPDWORD,
+                             lpReserved: LPVOID) -> BOOL;
+
+        pub fn GetConsoleMode(hConsoleHandle: HANDLE,
+                              lpMode: LPDWORD) -> BOOL;
+        pub fn GetFileInformationByHandle(hFile: HANDLE,
+                            lpFileInformation: LPBY_HANDLE_FILE_INFORMATION)
+                            -> BOOL;
+        pub fn SetHandleInformation(hObject: HANDLE,
+                                    dwMask: DWORD,
+                                    dwFlags: DWORD) -> BOOL;
+        pub fn AddVectoredExceptionHandler(FirstHandler: ULONG,
+                                           VectoredHandler: PVECTORED_EXCEPTION_HANDLER)
+                                           -> LPVOID;
+        pub fn CreateHardLinkW(lpSymlinkFileName: LPCWSTR,
+                               lpTargetFileName: LPCWSTR,
+                               lpSecurityAttributes: LPSECURITY_ATTRIBUTES)
+                               -> BOOL;
+        #[link_name = "SystemFunction036"]
+        pub fn RtlGenRandom(RandomBuffer: *mut u8, RandomBufferLength: ULONG) -> BOOLEAN;
+    }
 }
-}
 
-// UWP specific functions
+// UWP specific functions & types
 #[cfg(target_os = "uwp")]
 ifdef! {
-extern "system" {
-    pub fn GetFileInformationByHandleEx(hFile: HANDLE,
-                                        fileInfoClass: FILE_INFO_BY_HANDLE_CLASS,
-                                        lpFileInformation: LPVOID,
-                                        dwBufferSize: DWORD) -> BOOL;
-    pub fn BCryptGenRandom(hAlgorithm: LPVOID, pBuffer: *mut u8,
-                           cbBuffer: ULONG, dwFlags: ULONG) -> LONG;
-}
+    pub const WSA_FLAG_NO_HANDLE_INHERIT: DWORD = 0x80;
+    pub const BCRYPT_USE_SYSTEM_PREFERRED_RNG: DWORD = 0x00000002;
+
+    extern "system" {
+        pub fn GetFileInformationByHandleEx(hFile: HANDLE,
+                                            fileInfoClass: FILE_INFO_BY_HANDLE_CLASS,
+                                            lpFileInformation: LPVOID,
+                                            dwBufferSize: DWORD) -> BOOL;
+        pub fn BCryptGenRandom(hAlgorithm: LPVOID, pBuffer: *mut u8,
+                               cbBuffer: ULONG, dwFlags: ULONG) -> LONG;
+    }
 }
 
 // Shared between Desktop & UWP
