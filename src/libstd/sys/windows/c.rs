@@ -960,7 +960,7 @@ pub struct timeval {
 }
 
 // Functions forbidden when targeting UWP
-#[cfg(not(target_os = "uwp"))]
+#[cfg(not(target_vendor = "uwp"))]
 ifdef! {
     #[repr(C)]
     pub struct EXCEPTION_RECORD {
@@ -1049,7 +1049,7 @@ ifdef! {
 }
 
 // UWP specific functions & types
-#[cfg(target_os = "uwp")]
+#[cfg(target_vendor = "uwp")]
 ifdef! {
     pub const WSA_FLAG_NO_HANDLE_INHERIT: DWORD = 0x80;
     pub const BCRYPT_USE_SYSTEM_PREFERRED_RNG: DWORD = 0x00000002;
@@ -1358,7 +1358,7 @@ compat_fn! {
                                      _dwFlags: DWORD) -> DWORD {
         SetLastError(ERROR_CALL_NOT_IMPLEMENTED as DWORD); 0
     }
-    #[cfg(not(target_os = "uwp"))]
+    #[cfg(not(target_vendor = "uwp"))]
     pub fn SetThreadStackGuarantee(_size: *mut c_ulong) -> BOOL {
         SetLastError(ERROR_CALL_NOT_IMPLEMENTED as DWORD); 0
     }

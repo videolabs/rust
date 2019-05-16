@@ -96,9 +96,9 @@ impl Socket {
             SocketAddr::V6(..) => c::AF_INET6,
         };
         let socket = unsafe {
-            #[cfg(not(target_os = "uwp"))]
+            #[cfg(not(target_vendor = "uwp"))]
             let socket_flags = c::WSA_FLAG_OVERLAPPED;
-            #[cfg(target_os = "uwp")]
+            #[cfg(target_vendor = "uwp")]
             let socket_flags = c::WSA_FLAG_OVERLAPPED | c::WSA_FLAG_NO_HANDLE_INHERIT;
             match c::WSASocketW(fam, ty, 0, ptr::null_mut(), 0, socket_flags) {
                 c::INVALID_SOCKET => Err(last_error()),
@@ -181,9 +181,9 @@ impl Socket {
             cvt(c::WSADuplicateSocketW(self.0,
                                             c::GetCurrentProcessId(),
                                             &mut info))?;
-            #[cfg(not(target_os = "uwp"))]
+            #[cfg(not(target_vendor = "uwp"))]
             let socket_flags = c::WSA_FLAG_OVERLAPPED;
-            #[cfg(target_os = "uwp")]
+            #[cfg(target_vendor = "uwp")]
             let socket_flags = c::WSA_FLAG_OVERLAPPED | c::WSA_FLAG_NO_HANDLE_INHERIT;
 
             match c::WSASocketW(info.iAddressFamily,
@@ -320,7 +320,7 @@ impl Socket {
         }
     }
 
-    #[cfg(not(target_os = "uwp"))]
+    #[cfg(not(target_vendor = "uwp"))]
     fn set_no_inherit(&self) -> io::Result<()> {
         sys::cvt(unsafe {
             c::SetHandleInformation(self.0 as c::HANDLE,
@@ -328,7 +328,7 @@ impl Socket {
         }).map(|_| ())
     }
 
-    #[cfg(target_os = "uwp")]
+    #[cfg(target_vendor = "uwp")]
     fn set_no_inherit(&self) -> io::Result<()> {
         Ok(())
     }

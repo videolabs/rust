@@ -298,7 +298,7 @@ impl Step for StartupObjects {
     fn run(self, builder: &Builder<'_>) {
         let for_compiler = self.compiler;
         let target = self.target;
-        if !target.contains("pc-windows-gnu") && !target.contains("pc-uwp-gnu") {
+        if !target.contains("windows-gnu") {
             return
         }
 
@@ -755,7 +755,6 @@ pub fn build_codegen_backend(builder: &Builder<'_>,
             if builder.config.llvm_static_stdcpp &&
                !target.contains("freebsd") &&
                !target.contains("windows") &&
-               !target.contains("uwp") &&
                !target.contains("apple") {
                 let file = compiler_file(builder,
                                          builder.cxx(target).unwrap(),

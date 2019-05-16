@@ -441,8 +441,7 @@ impl<'tcx> FnTypeExt<'tcx> for FnType<'tcx, Ty<'tcx>> {
         };
 
         let target = &cx.sess().target.target;
-        let win_x64_gnu = (target.target_os == "windows" ||
-                           target.target_os == "uwp")
+        let win_x64_gnu = target.target_os == "windows"
                        && target.arch == "x86_64"
                        && target.target_env == "gnu";
         let linux_s390x = target.target_os == "linux"

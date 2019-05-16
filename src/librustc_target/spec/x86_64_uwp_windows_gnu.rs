@@ -1,7 +1,7 @@
 use crate::spec::{LinkerFlavor, Target, TargetResult};
 
 pub fn target() -> TargetResult {
-    let mut base = super::uwp_base::opts();
+    let mut base = super::windows_uwp_base::opts();
     base.cpu = "x86-64".to_string();
     base.pre_link_args.get_mut(&LinkerFlavor::Gcc).unwrap().push("-m64".to_string());
     base.max_atomic_width = Some(64);
@@ -13,9 +13,9 @@ pub fn target() -> TargetResult {
         target_c_int_width: "32".to_string(),
         data_layout: "e-m:w-i64:64-f80:128-n8:16:32:64-S128".to_string(),
         arch: "x86_64".to_string(),
-        target_os: "uwp".to_string(),
+        target_os: "windows".to_string(),
         target_env: "gnu".to_string(),
-        target_vendor: "pc".to_string(),
+        target_vendor: "uwp".to_string(),
         linker_flavor: LinkerFlavor::Gcc,
         options: base,
     })
