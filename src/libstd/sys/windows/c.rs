@@ -300,6 +300,8 @@ pub const STACK_SIZE_PARAM_IS_A_RESERVATION: DWORD = 0x00010000;
 
 pub const HEAP_ZERO_MEMORY: DWORD = 0x00000008;
 
+pub const BCRYPT_USE_SYSTEM_PREFERRED_RNG: DWORD = 0x00000002;
+
 #[repr(C)]
 #[cfg(not(target_pointer_width = "64"))]
 pub struct WSADATA {
@@ -1043,8 +1045,6 @@ ifdef! {
                                lpTargetFileName: LPCWSTR,
                                lpSecurityAttributes: LPSECURITY_ATTRIBUTES)
                                -> BOOL;
-        #[link_name = "SystemFunction036"]
-        pub fn RtlGenRandom(RandomBuffer: *mut u8, RandomBufferLength: ULONG) -> BOOLEAN;
     }
 }
 
@@ -1052,15 +1052,12 @@ ifdef! {
 #[cfg(target_vendor = "uwp")]
 ifdef! {
     pub const WSA_FLAG_NO_HANDLE_INHERIT: DWORD = 0x80;
-    pub const BCRYPT_USE_SYSTEM_PREFERRED_RNG: DWORD = 0x00000002;
 
     extern "system" {
         pub fn GetFileInformationByHandleEx(hFile: HANDLE,
                                             fileInfoClass: FILE_INFO_BY_HANDLE_CLASS,
                                             lpFileInformation: LPVOID,
                                             dwBufferSize: DWORD) -> BOOL;
-        pub fn BCryptGenRandom(hAlgorithm: LPVOID, pBuffer: *mut u8,
-                               cbBuffer: ULONG, dwFlags: ULONG) -> LONG;
     }
 }
 
@@ -1333,6 +1330,8 @@ extern "system" {
                   timeout: *const timeval) -> c_int;
 
 
+    pub fn BCryptGenRandom(hAlgorithm: LPVOID, pBuffer: *mut u8,
+                           cbBuffer: ULONG, dwFlags: ULONG) -> LONG;
     pub fn GetProcessHeap() -> HANDLE;
     pub fn HeapAlloc(hHeap: HANDLE, dwFlags: DWORD, dwBytes: SIZE_T) -> LPVOID;
     pub fn HeapReAlloc(hHeap: HANDLE, dwFlags: DWORD, lpMem: LPVOID, dwBytes: SIZE_T) -> LPVOID;
