@@ -13,7 +13,6 @@ use crate::path::{self, PathBuf};
 use crate::ptr;
 use crate::slice;
 use crate::sys::{c, cvt};
-use crate::sys::handle::Handle;
 
 use super::to_u16s;
 
@@ -284,24 +283,34 @@ pub fn temp_dir() -> PathBuf {
     }, super::os2path).unwrap()
 }
 
+#[cfg(not(target_vendor = "uwp"))]
+fn home_dir_crt() -> Option<PathBuf> {
+    use crate::sys::handle::Handle;
+
+    let me = c::GetCurrentProcess();
+    let mut token = ptr::null_mut();
+    if c::OpenProcessToken(me, c::TOKEN_READ, &mut token) == 0 {
+        return None
+    }
+    let _handle = Handle::new(token);
+    super::fill_utf16_buf(|buf, mut sz| {
+        match c::GetUserProfileDirectoryW(token, buf, &mut sz) {
+            0 if c::GetLastError() != c::ERROR_INSUFFICIENT_BUFFER => 0,
+            0 => sz,
+            _ => sz - 1, // sz includes the null terminator
+        }
+    }, super::os2path).ok()
+}
+
+#[cfg(target_vendor = "uwp")]
+fn home_dir_crt() -> Option<PathBuf> {
+    None
+}
+
 pub fn home_dir() -> Option<PathBuf> {
     crate::env::var_os("HOME").or_else(|| {
         crate::env::var_os("USERPROFILE")
-    }).map(PathBuf::from).or_else(|| unsafe {
-        let me = c::GetCurrentProcess();
-        let mut token = ptr::null_mut();
-        if c::OpenProcessToken(me, c::TOKEN_READ, &mut token) == 0 {
-            return None
-        }
-        let _handle = Handle::new(token);
-        super::fill_utf16_buf(|buf, mut sz| {
-            match c::GetUserProfileDirectoryW(token, buf, &mut sz) {
-                0 if c::GetLastError() != c::ERROR_INSUFFICIENT_BUFFER => 0,
-                0 => sz,
-                _ => sz - 1, // sz includes the null terminator
-            }
-        }, super::os2path).ok()
-    })
+    }).map(PathBuf::from).or_else(|| home_dir_crt())
 }
 
 pub fn exit(code: i32) -> ! {
