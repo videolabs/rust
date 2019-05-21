@@ -110,15 +110,6 @@ pub const SECURITY_SQOS_PRESENT: DWORD = 0x00100000;
 
 pub const FIONBIO: c_ulong = 0x8004667e;
 
-pub const CSIDL_PROFILE: c_int = 0x0028;
-
-#[repr(C)]
-#[allow(dead_code)] // we only use some variants
-pub enum SHGFP_TYPE {
-    SHGFP_TYPE_CURRENT = 0,
-    SHGFP_TYPE_DEFAULT = 1
-}
-
 #[cfg(target_arch = "arm")]
 const ARM_MAX_BREAKPOINTS: usize = 8;
 #[cfg(target_arch = "arm")]
@@ -1015,6 +1006,8 @@ ifdef! {
 
     pub const HANDLE_FLAG_INHERIT: DWORD = 0x00000001;
 
+    pub const TOKEN_READ: DWORD = 0x20008;
+
     extern "system" {
         pub fn ReadConsoleW(hConsoleInput: HANDLE,
                             lpBuffer: LPVOID,
@@ -1030,6 +1023,13 @@ ifdef! {
 
         pub fn GetConsoleMode(hConsoleHandle: HANDLE,
                               lpMode: LPDWORD) -> BOOL;
+        // Allowed but unused by UWP
+        pub fn OpenProcessToken(ProcessHandle: HANDLE,
+                                DesiredAccess: DWORD,
+                                TokenHandle: *mut HANDLE) -> BOOL;
+        pub fn GetUserProfileDirectoryW(hToken: HANDLE,
+                                        lpProfileDir: LPWSTR,
+                                        lpcchSize: *mut DWORD) -> BOOL;
         pub fn GetFileInformationByHandle(hFile: HANDLE,
                             lpFileInformation: LPBY_HANDLE_FILE_INFORMATION)
                             -> BOOL;
@@ -1135,9 +1135,6 @@ extern "system" {
     pub fn SwitchToThread() -> BOOL;
     pub fn Sleep(dwMilliseconds: DWORD);
     pub fn GetProcessId(handle: HANDLE) -> DWORD;
-    pub fn SHGetFolderPathW(handle: HANDLE, csidl: c_int,
-                            hToken: HANDLE, dwFlags: DWORD,
-                            pszPath: LPWSTR) -> DWORD;
     pub fn CopyFileExW(lpExistingFileName: LPCWSTR,
                        lpNewFileName: LPCWSTR,
                        lpProgressRoutine: LPPROGRESS_ROUTINE,

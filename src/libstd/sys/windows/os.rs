@@ -13,6 +13,7 @@ use crate::path::{self, PathBuf};
 use crate::ptr;
 use crate::slice;
 use crate::sys::{c, cvt};
+use crate::sys::handle::Handle;
 
 use super::to_u16s;
 
@@ -287,14 +288,19 @@ pub fn home_dir() -> Option<PathBuf> {
     crate::env::var_os("HOME").or_else(|| {
         crate::env::var_os("USERPROFILE")
     }).map(PathBuf::from).or_else(|| unsafe {
-        let mut bufArray = [0u16; 260]; // MAX_PATH
-        let buf = bufArray[..].as_mut_ptr();
-        match c::SHGetFolderPathW(ptr::null_mut(), c::CSIDL_PROFILE,
-                                  ptr::null_mut(), c::SHGFP_TYPE::SHGFP_TYPE_CURRENT as u32,
-                                  buf) {
-            0 => Some(super::os2path(&bufArray[..])),
-            _ => None
+        let me = c::GetCurrentProcess();
+        let mut token = ptr::null_mut();
+        if c::OpenProcessToken(me, c::TOKEN_READ, &mut token) == 0 {
+            return None
         }
+        let _handle = Handle::new(token);
+        super::fill_utf16_buf(|buf, mut sz| {
+            match c::GetUserProfileDirectoryW(token, buf, &mut sz) {
+                0 if c::GetLastError() != c::ERROR_INSUFFICIENT_BUFFER => 0,
+                0 => sz,
+                _ => sz - 1, // sz includes the null terminator
+            }
+        }, super::os2path).ok()
     })
 }
 
