@@ -985,21 +985,6 @@ ifdef! {
 
     pub type PCONSOLE_READCONSOLE_CONTROL = *mut CONSOLE_READCONSOLE_CONTROL;
 
-    #[repr(C)]
-    pub struct BY_HANDLE_FILE_INFORMATION {
-        pub dwFileAttributes: DWORD,
-        pub ftCreationTime: FILETIME,
-        pub ftLastAccessTime: FILETIME,
-        pub ftLastWriteTime: FILETIME,
-        pub dwVolumeSerialNumber: DWORD,
-        pub nFileSizeHigh: DWORD,
-        pub nFileSizeLow: DWORD,
-        pub nNumberOfLinks: DWORD,
-        pub nFileIndexHigh: DWORD,
-        pub nFileIndexLow: DWORD,
-    }
-
-    pub type LPBY_HANDLE_FILE_INFORMATION = *mut BY_HANDLE_FILE_INFORMATION;
     pub type LPCVOID = *const c_void;
 
     pub const EXCEPTION_CONTINUE_SEARCH: LONG = 0;
@@ -1032,9 +1017,6 @@ ifdef! {
         pub fn GetUserProfileDirectoryW(hToken: HANDLE,
                                         lpProfileDir: LPWSTR,
                                         lpcchSize: *mut DWORD) -> BOOL;
-        pub fn GetFileInformationByHandle(hFile: HANDLE,
-                            lpFileInformation: LPBY_HANDLE_FILE_INFORMATION)
-                            -> BOOL;
         pub fn SetHandleInformation(hObject: HANDLE,
                                     dwMask: DWORD,
                                     dwFlags: DWORD) -> BOOL;
@@ -1053,12 +1035,6 @@ ifdef! {
 ifdef! {
     pub const WSA_FLAG_NO_HANDLE_INHERIT: DWORD = 0x80;
 
-    extern "system" {
-        pub fn GetFileInformationByHandleEx(hFile: HANDLE,
-                                            fileInfoClass: FILE_INFO_BY_HANDLE_CLASS,
-                                            lpFileInformation: LPVOID,
-                                            dwBufferSize: DWORD) -> BOOL;
-    }
 }
 
 // Shared between Desktop & UWP
@@ -1138,6 +1114,10 @@ extern "system" {
                        lpData: LPVOID,
                        pbCancel: LPBOOL,
                        dwCopyFlags: DWORD) -> BOOL;
+    pub fn GetFileInformationByHandleEx(hFile: HANDLE,
+                                        fileInfoClass: FILE_INFO_BY_HANDLE_CLASS,
+                                        lpFileInformation: LPVOID,
+                                        dwBufferSize: DWORD) -> BOOL;
     pub fn FormatMessageW(flags: DWORD,
                           lpSrc: LPVOID,
                           msgId: DWORD,

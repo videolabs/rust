@@ -287,31 +287,6 @@ impl File {
         Ok(())
     }
 
-    #[cfg(not(target_vendor = "uwp"))]
-    pub fn file_attr(&self) -> io::Result<FileAttr> {
-        unsafe {
-            let mut info: c::BY_HANDLE_FILE_INFORMATION = mem::zeroed();
-            cvt(c::GetFileInformationByHandle(self.handle.raw(),
-                                              &mut info))?;
-            let mut attr = FileAttr {
-                attributes: info.dwFileAttributes,
-                creation_time: info.ftCreationTime,
-                last_access_time: info.ftLastAccessTime,
-                last_write_time: info.ftLastWriteTime,
-                file_size: ((info.nFileSizeHigh as u64) << 32) | (info.nFileSizeLow as u64),
-                reparse_tag: 0,
-            };
-            if attr.is_reparse_point() {
-                let mut b = [0; c::MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-                if let Ok((_, buf)) = self.reparse_point(&mut b) {
-                    attr.reparse_tag = buf.ReparseTag;
-                }
-            }
-            Ok(attr)
-        }
-    }
-
-    #[cfg(target_vendor = "uwp")]
     pub fn file_attr(&self) -> io::Result<FileAttr> {
         unsafe {
             let mut info: c::FILE_BASIC_INFO = mem::zeroed();
