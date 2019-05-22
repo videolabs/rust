@@ -134,6 +134,7 @@ impl Clone for WIN32_FIND_DATAW {
 }
 
 pub const WSA_FLAG_OVERLAPPED: DWORD = 0x01;
+pub const WSA_FLAG_NO_HANDLE_INHERIT: DWORD = 0x80;
 
 pub const WSADESCRIPTION_LEN: usize = 256;
 pub const WSASYS_STATUS_LEN: usize = 128;
@@ -143,6 +144,7 @@ pub const INVALID_SOCKET: SOCKET = !0;
 pub const WSAEACCES: c_int = 10013;
 pub const WSAEINVAL: c_int = 10022;
 pub const WSAEWOULDBLOCK: c_int = 10035;
+pub const WSAEPROTOTYPE: c_int = 10041;
 pub const WSAEADDRINUSE: c_int = 10048;
 pub const WSAEADDRNOTAVAIL: c_int = 10049;
 pub const WSAECONNABORTED: c_int = 10053;
@@ -1028,13 +1030,6 @@ ifdef! {
                                lpSecurityAttributes: LPSECURITY_ATTRIBUTES)
                                -> BOOL;
     }
-}
-
-// UWP specific functions & types
-#[cfg(target_vendor = "uwp")]
-ifdef! {
-    pub const WSA_FLAG_NO_HANDLE_INHERIT: DWORD = 0x80;
-
 }
 
 // Shared between Desktop & UWP
