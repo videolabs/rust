@@ -2,10 +2,8 @@
 
 use crate::char::decode_utf16;
 use crate::io;
-#[cfg(not(target_vendor = "uwp"))]
 use crate::{ptr, cmp, str};
 use crate::sys::c;
-#[cfg(not(target_vendor = "uwp"))]
 use crate::sys::cvt;
 use crate::sys::handle::Handle;
 
@@ -43,7 +41,6 @@ pub fn get_handle(handle_id: c::DWORD) -> io::Result<c::HANDLE> {
     }
 }
 
-#[cfg(not(target_vendor = "uwp"))]
 fn is_console(handle: c::HANDLE) -> bool {
     // `GetConsoleMode` will return false (0) if this is a pipe (we don't care about the reported
     // mode). This will only detect Windows Console, not other terminals connected to a pipe like
@@ -52,16 +49,6 @@ fn is_console(handle: c::HANDLE) -> bool {
     unsafe { c::GetConsoleMode(handle, &mut mode) != 0 }
 }
 
-#[cfg(target_vendor = "uwp")]
-fn write(handle_id: c::DWORD, data: &[u8]) -> io::Result<usize> {
-    let handle = get_handle(handle_id)?;
-    let handle = Handle::new(handle);
-    let ret = handle.write(data);
-    handle.into_raw(); // Don't close the handle
-    return ret;
-}
-
-#[cfg(not(target_vendor = "uwp"))]
 fn write(handle_id: c::DWORD, data: &[u8]) -> io::Result<usize> {
     let handle = get_handle(handle_id)?;
     if !is_console(handle) {
@@ -125,7 +112,6 @@ fn write(handle_id: c::DWORD, data: &[u8]) -> io::Result<usize> {
     }
 }
 
-#[cfg(not(target_vendor = "uwp"))]
 fn write_u16s(handle: c::HANDLE, data: &[u16]) -> io::Result<usize> {
     let mut written = 0;
     cvt(unsafe {
@@ -145,7 +131,6 @@ impl Stdin {
 }
 
 impl io::Read for Stdin {
-    #[cfg(not(target_vendor = "uwp"))]
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         let handle = get_handle(c::STD_INPUT_HANDLE)?;
         if !is_console(handle) {
@@ -172,22 +157,12 @@ impl io::Read for Stdin {
 
         utf16_to_utf8(&utf16_buf[..read], buf)
     }
-
-    #[cfg(target_vendor = "uwp")]
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        let handle = get_handle(c::STD_INPUT_HANDLE)?;
-        let handle = Handle::new(handle);
-        let ret = handle.read(buf);
-        handle.into_raw(); // Don't close the handle
-        ret
-    }
 }
 
 
 // We assume that if the last `u16` is an unpaired surrogate they got sliced apart by our
 // buffer size, and keep it around for the next read hoping to put them together.
 // This is a best effort, and may not work if we are not the only reader on Stdin.
-#[cfg(not(target_vendor = "uwp"))]
 fn read_u16s_fixup_surrogates(handle: c::HANDLE,
                               buf: &mut [u16],
                               mut amount: usize,
@@ -218,7 +193,6 @@ fn read_u16s_fixup_surrogates(handle: c::HANDLE,
     Ok(amount)
 }
 
-#[cfg(not(target_vendor = "uwp"))]
 fn read_u16s(handle: c::HANDLE, buf: &mut [u16]) -> io::Result<usize> {
     // Configure the `pInputControl` parameter to not only return on `\r\n` but also Ctrl-Z, the
     // traditional DOS method to indicate end of character stream / user input (SUB).
