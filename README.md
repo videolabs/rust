@@ -145,7 +145,7 @@ then you may need to force rustbuild to use an older version. This can be done
 by manually calling the appropriate vcvars file before running the bootstrap.
 
 ```batch
-> CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat"
+> CALL "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64|x86
 > python x.py build
 ```
 
