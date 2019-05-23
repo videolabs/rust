@@ -4,6 +4,8 @@
 #![cfg_attr(test, allow(dead_code))]
 #![unstable(issue = "0", feature = "windows_c")]
 
+// This macro is only used on desktop mode
+#[allow(unused_macros)]
 macro_rules! ifdef {
     ($($t:tt)*) => ($($t)*)
 }
