@@ -61,6 +61,7 @@ mod uefi_base;
 mod windows_base;
 mod windows_msvc_base;
 mod windows_uwp_base;
+mod windows_uwp_msvc_base;
 mod thumb_base;
 mod l4re_base;
 mod fuchsia_base;
@@ -435,7 +436,9 @@ supported_targets! {
     ("x86_64-pc-windows-gnu", x86_64_pc_windows_gnu),
     ("i686-pc-windows-gnu", i686_pc_windows_gnu),
     ("i686-uwp-windows-gnu", i686_uwp_windows_gnu),
+    ("i686-uwp-windows-msvc", i686_uwp_windows_msvc),
     ("x86_64-uwp-windows-gnu", x86_64_uwp_windows_gnu),
+    ("x86_64-uwp-windows-msvc", x86_64_uwp_windows_msvc),
 
     ("aarch64-pc-windows-msvc", aarch64_pc_windows_msvc),
     ("x86_64-pc-windows-msvc", x86_64_pc_windows_msvc),
