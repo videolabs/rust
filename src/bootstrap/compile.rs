@@ -358,6 +358,8 @@ impl Step for StartupObjects {
                                     obj);
             builder.copy(&src, &sysroot_dir.join(obj));
         }
+        let libgcc = compiler_libgcc(builder, builder.cc(target));
+        builder.copy(&libgcc, &sysroot_dir.join("libgcc.a"));
     }
 }
 
@@ -910,6 +912,18 @@ pub fn compiler_file(
     let mut cmd = Command::new(compiler);
     cmd.args(builder.cflags(target, GitRepo::Rustc));
     cmd.arg(format!("-print-file-name={}", file));
+    let out = output(&mut cmd);
+    PathBuf::from(out.trim())
+}
+
+/// Get the path to libgcc or compiler-rt
+fn compiler_libgcc(
+    builder: &Builder<'_>,
+    compiler: &Path
+) -> PathBuf {
+    let mut cmd = Command::new(compiler);
+    cmd.arg("-print-libgcc-file-name");
+    builder.info(&format!("compiler cmd: {:?}", &cmd));
     let out = output(&mut cmd);
     PathBuf::from(out.trim())
 }
