@@ -33,7 +33,14 @@ pub mod pipe;
 pub mod process;
 pub mod rand;
 pub mod rwlock;
+#[cfg(not(target_vendor = "uwp"))]
 pub mod stack_overflow;
+#[cfg(target_vendor = "uwp")]
+pub mod stack_overflow_uwp;
+#[cfg(target_vendor = "uwp")]
+pub mod stack_overflow {
+    pub use crate::sys::windows::stack_overflow_uwp::*;
+}
 pub mod thread;
 pub mod thread_local;
 pub mod time;
