@@ -406,10 +406,11 @@ impl<'a> Linker for GccLinker<'a> {
             return
         }
 
-        // Symbol visibility takes care of this for the WebAssembly.
+        // Symbol visibility takes care of this for the WebAssembly & uwp.
         // Additionally the only known linker, LLD, doesn't support the script
         // arguments just yet
-        if self.sess.target.target.arch == "wasm32" {
+        if self.sess.target.target.arch == "wasm32" ||
+           self.sess.target.target.target_vendor == "uwp" {
             return;
         }
 
