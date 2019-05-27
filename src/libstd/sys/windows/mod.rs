@@ -37,7 +37,14 @@ pub mod stack_overflow;
 pub mod thread;
 pub mod thread_local;
 pub mod time;
+#[cfg(not(target_vendor = "uwp"))]
 pub mod stdio;
+#[cfg(target_vendor = "uwp")]
+pub mod stdio_uwp;
+#[cfg(target_vendor = "uwp")]
+pub mod stdio {
+    pub use crate::sys::windows::stdio_uwp::*;
+}
 
 #[cfg(not(test))]
 pub fn init() {
