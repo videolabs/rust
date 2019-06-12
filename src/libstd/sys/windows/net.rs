@@ -353,7 +353,7 @@ impl Socket {
 
     #[cfg(target_vendor = "uwp")]
     fn set_no_inherit(&self) -> io::Result<()> {
-        Ok(())
+        Err(io::Error::new(io::ErrorKind::Other, "Unavailable on UWP"))
     }
 
     pub fn shutdown(&self, how: Shutdown) -> io::Result<()> {
