@@ -10,9 +10,6 @@ pub fn opts() -> TargetOptions {
 
             // Always enable DEP (NX bit) when it is available
             "-Wl,--nxcompat".to_string(),
-
-            // Do not use the standard system startup files or libraries when linking
-            "-nostdlib".to_string(),
         ]);
 
     let mut late_link_args = LinkArgs::new();
@@ -47,17 +44,14 @@ pub fn opts() -> TargetOptions {
         allows_weak_linkage: false,
         pre_link_args,
         pre_link_objects_exe: vec![
-            "crt2.o".to_string(),    // mingw C runtime initialization for executables
             "rsbegin.o".to_string(), // Rust compiler runtime initialization, see rsbegin.rs
         ],
         pre_link_objects_dll: vec![
-            "dllcrt2.o".to_string(), // mingw C runtime initialization for dlls
             "rsbegin.o".to_string(),
         ],
         late_link_args,
         post_link_objects: vec![
             "rsend.o".to_string(),
-            "libgcc.a".to_string(), // libgcc or compiler-rt
         ],
         custom_unwind_resume: true,
         abi_return_struct_as_int: true,
