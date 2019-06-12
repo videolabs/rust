@@ -33,25 +33,22 @@ pub mod pipe;
 pub mod process;
 pub mod rand;
 pub mod rwlock;
-#[cfg(not(target_vendor = "uwp"))]
-pub mod stack_overflow;
-#[cfg(target_vendor = "uwp")]
-pub mod stack_overflow_uwp;
-#[cfg(target_vendor = "uwp")]
-pub mod stack_overflow {
-    pub use crate::sys::windows::stack_overflow_uwp::*;
+
+cfg_if! {
+    if #[cfg(not(target_vendor = "uwp"))] {
+        pub mod stack_overflow;
+        pub mod stdio;
+    } else {
+        pub mod stack_overflow_uwp;
+        pub mod stdio_uwp;
+        pub use self::stack_overflow_uwp as stack_overflow;
+        pub use self::stdio_uwp as stdio;
+    }
 }
+
 pub mod thread;
 pub mod thread_local;
 pub mod time;
-#[cfg(not(target_vendor = "uwp"))]
-pub mod stdio;
-#[cfg(target_vendor = "uwp")]
-pub mod stdio_uwp;
-#[cfg(target_vendor = "uwp")]
-pub mod stdio {
-    pub use crate::sys::windows::stdio_uwp::*;
-}
 
 #[cfg(not(test))]
 pub fn init() {
